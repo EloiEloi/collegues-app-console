@@ -17,5 +17,8 @@
   "bugs": {
     "url": "https://github.com/EloiEloi/collegues-app-console/issues"
   },
-  "homepage": "https://github.com/EloiEloi/collegues-app-console#readme"
+  "homepage": "https://github.com/EloiEloi/collegues-app-console#readme",
+  "dependencies": {
+    "request": "^2.88.0"
+  }
 }
