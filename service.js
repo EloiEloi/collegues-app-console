@@ -22,49 +22,35 @@ class Service {
                     login: loginUser,
                     mdp: mdpUser
                 }
-
             }
-        ).then(function (response) {
+        ).then((response) => {
             return response;
         });
-    }
+    };
 
-    apiRechercherCollegueParNom(nomCollegue, callbackFn) {
+    rechercherMatriculeCollegueParNom(nomCollegue) {
         const urlReq = urlApi + 'collegues?nom=' + nomCollegue;
-        request(urlReq,
-            {
-                method: 'GET',
-                json: true
+        return request(urlReq, { json: true })
+            .then((tabMatricules) => {
 
-            },
-            function (err, res, matricule) {
-                let nbr = matricule.length;
+                let listePromesses = [];
 
-                if (res.statusCode === 200 && matricule[0] != undefined) {
-                    for (let index = 0; index < nbr; index++) {
-                        request(urlApi + 'collegues/' + matricule[index],
-                            {
-                                method: 'GET',
-                                json: true
-                            },
-                            function (err, res, body) {
-                                callbackFn(err, res, body);
-                            }
-                        );
-                    }
-                } else {
-                    console.log('nom inconnu')
+                for (let matricule of tabMatricules) {
+                    const r$ = request(`${urlApi}collegues/${matricule}`, { json: true });
+                    listePromesses.push(r$)
                 }
-            }
-        );
-    }
+                return Promise.all(listePromesses);
+            });
+    };
 
-    creerCollegue(nom, prenom, email, ddn, photoUrl, callbackFn) {
+
+    creerCollegue(nom, prenom, email, ddn, photoUrl) {
         const urlReq = urlApi + 'collegues';
-        request(urlReq,
+        return request(urlReq,
             {
                 method: 'POST',
                 json: true,
+                resolveWithFullResponse: true,
                 body: {
                     "nom": nom,
                     "prenom": prenom,
@@ -72,54 +58,37 @@ class Service {
                     "ddn": ddn,
                     "photoUrl": photoUrl
                 }
-            },
-            function (err, res, body) {
-                callbackFn(err, res, body);
             }
         );
-    }
+    };
 
-    modifierEmail(nouvEmail, matricule, callbackFn) {
+    modifierEmail(nouvEmail, matricule) {
         const urlReq = urlApi + 'collegues/' + matricule
-        request(urlReq,
+        return request(urlReq,
             {
                 method: 'PATCH',
                 json: true,
+                resolveWithFullResponse: true,
                 body: {
                     "email": nouvEmail
                 }
-            },
-            function (err, res, body) {
-                console.log(res.statusCode, res.statusMessage)
-                if (res.statusCode === 200) {
-                    callbackFn(err, res, body);
-                } else {
-                    console.log('error')
-                }
             }
         );
-    }
+    };
 
-    modifierPhoto(nouvPhoto, matricule, callbackFn) {
+    modifierPhoto(nouvPhoto, matricule) {
         const urlReq = urlApi + 'collegues/' + matricule
-        request(urlReq,
+        return request(urlReq,
             {
                 method: 'PATCH',
                 json: true,
+                resolveWithFullResponse: true,
                 body: {
                     "photoUrl": nouvPhoto
                 }
-            },
-            function (err, res, body) {
-                console.log(res.statusCode, res.statusMessage)
-                if (res.statusCode === 200) {
-                    callbackFn(err, res, body);
-                } else {
-                    console.log('error')
-                }
             }
         );
-    }
+    };
 
 }
 

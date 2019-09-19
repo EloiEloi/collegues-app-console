@@ -56,34 +56,45 @@ saisissez votre identifiant
 
 
 function menu() {
+
+    let nom;
+    let prenom;
+    let dateDeNaissance;
+
+
     let menuString = `
 ---- MENU ----
 1. Rechercher un collègue
 2. Créer un collègue;
 3. Modifier l'email
 4. Modifier la photo
-99. Sortir`
+99. Sortir
+`
     console.log(menuString);
 
     // récupération de la saisie utilisateur
-    rl.question('> ', function (saisie) {
+    rl.question('choix > ', (saisie) => {
 
         switch (saisie) {
             case "1":
                 console.log('saisissez un nom')
-                rl.question('> ', function (saisie) {
-                    console.log('...Recherche en cours du nom  : ', saisie);
-                    service.rechercherCollegueParNom(saisie,
-                        function (err, res, body) {
-                            console.log(res.statusCode);
-                            if (res.statusCode === 200) {
-                                console.log(body.length, "collegue(s)  trouvé(s) !");
-                                for (const key in body) {
-                                    console.log(body[key]);
-                                }
-                            }
-                        }
-                    );
+                rl.question('> ', (nom) => {
+
+                    service.rechercherMatriculeCollegueParNom(nom)
+                        .then((response) => {
+
+                            let nbrCollegues = response.length;
+                            console.log(`\n${nbrCollegues} collègues trouvé(s)`);
+                            let nb = 0;
+                            response.forEach(element => {
+                                nb += 1;
+                                console.log(`${nb} ->`, element.nom, element.prenom, element.ddn)
+                            });
+                            menu();
+                        }).catch((error) => {
+                            console.log('error.message : ', error.message);
+                            menu();
+                        });
                 });
                 break;
 
@@ -92,24 +103,24 @@ function menu() {
 Saisissez un nom :`
                 console.log(aff2);
 
-                rl.question('> ', function (nom) {
+                rl.question('> ', (nom) => {
                     console.log('Saisissez un prenom :');
-                    rl.question('> ', function (prenom) {
+                    rl.question('> ', (prenom) => {
                         console.log('Saisissez un email :');
-                        rl.question('> ', function (email) {
-                            console.log('saisissez une date de naissance (annee-mois-jour');
-                            rl.question('> ', function (ddn) {
+                        rl.question('> ', (email) => {
+                            console.log('saisissez une date de naissance (annee-mois-jour)');
+                            rl.question('> ', (ddn) => {
                                 console.log("saisissez l'url d'une photo");
-                                rl.question('> ', function (photoUrl) {
-                                    service.creerCollegue(nom, prenom, email, ddn, photoUrl,
-                                        function (err, res, body) {
-                                            console.log(res.statusCode);
-                                            if (res.statusCode === 200) {
-                                                console.log("collegue  ajouté !");
-                                                console.log(body);
-                                            }
-                                        }
-                                    );
+                                rl.question('> ', (photoUrl) => {
+                                    service.creerCollegue(nom, prenom, email, ddn, photoUrl)
+                                        .then((response) => {
+                                            console.log(response.body);
+                                            menu();
+                                        })
+                                        .catch((error) => {
+                                            console.log(error.message);
+                                            menu();
+                                        });
                                 });
                             });
                         });
@@ -122,18 +133,15 @@ Saisissez un nom :`
 Saisissez le matricule :`
                 console.log(aff3);
 
-                rl.question('> ', function (matricule) {
+                rl.question('> ', (matricule) => {
                     console.log("Saisissez le nouvel email :");
-                    rl.question('> ', function (email) {
-                        service.modifierEmail(email, matricule,
-                            function (err, res, body) {
-                                console.log(res.statusCode);
-                                if (res.statusCode === 200) {
-                                    console.log("email modifié !");
-                                    console.log(body);
-                                }
-                            }
-                        );
+                    rl.question('> ', (email) => {
+                        service.modifierEmail(email, matricule)
+                            .then((response) => {
+                                console.log(response.message, response.body)
+                            }).catch((error) => {
+                                console.log(error.message);
+                            });
                     });
                 });
                 break;
@@ -144,18 +152,19 @@ Saisissez le matricule :`
 Saisissez le matricule :`
                 console.log(aff4);
 
-                rl.question('> ', function (matricule) {
+                rl.question('> ', (matricule) => {
                     console.log("Saisissez l'url pour la nouvelle photo :");
-                    rl.question('> ', function (photo) {
-                        service.modifierPhoto(photo, matricule,
-                            function (err, res, body) {
-                                console.log(res.statusCode);
+                    rl.question('> ', (photo) => {
+                        service.modifierPhoto(photo, matricule)
+                            .then((response) => {
+                                console.log(response.statusCode);
                                 if (res.statusCode === 200) {
                                     console.log("photo modifié !");
                                     console.log(body);
                                 }
-                            }
-                        );
+                            }).catch((error) => {
+
+                            });
                     });
                 });
                 break;
