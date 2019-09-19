@@ -18,12 +18,12 @@ function start() {
         let textConsole = `
 saisissez votre identifiant
 > `;
-        rl.question(textConsole, function (identifiant) {
+        rl.question(textConsole, (identifiant) => {
             let textConsole = `saisissez votre mdp
 > `;
-            rl.question(textConsole, function (mdp) {
+            rl.question(textConsole, (mdp) => {
                 service.apiAuthentification(identifiant, mdp)
-                    .then(function (response) {
+                    .then((response) => {
                         let statut = response.statusCode;
                         if (statut === 200) {
                             console.log(statut, 'authentification réussie !');
@@ -36,9 +36,9 @@ saisissez votre identifiant
                             start();
                         }
                     })
-                    .catch(function (err) {
+                    .catch((error) => {
                         // Request failed due to technical reasons...
-                        console.log(err.statusCode, 'error');
+                        console.log(error.statusCode, 'error');
                         start();
                     });
 
@@ -114,6 +114,7 @@ Saisissez un nom :`
                                 rl.question('> ', (photoUrl) => {
                                     service.creerCollegue(nom, prenom, email, ddn, photoUrl)
                                         .then((response) => {
+
                                             console.log(response.body);
                                             menu();
                                         })
@@ -132,15 +133,19 @@ Saisissez un nom :`
                 let aff3 = `**Modification email**
 Saisissez le matricule :`
                 console.log(aff3);
-
                 rl.question('> ', (matricule) => {
                     console.log("Saisissez le nouvel email :");
                     rl.question('> ', (email) => {
                         service.modifierEmail(email, matricule)
                             .then((response) => {
-                                console.log(response.message, response.body)
+                                let nom = response.body.nom;
+                                let prenom = response.body.prenom;
+                                let email = response.body.email
+                                console.log(`\nl'email de ${nom} ${prenom} a bien été modifé (nouvel email : ${email})`);
+                                menu();
                             }).catch((error) => {
                                 console.log(error.message);
+                                menu();
                             });
                     });
                 });
@@ -157,13 +162,14 @@ Saisissez le matricule :`
                     rl.question('> ', (photo) => {
                         service.modifierPhoto(photo, matricule)
                             .then((response) => {
-                                console.log(response.statusCode);
-                                if (res.statusCode === 200) {
-                                    console.log("photo modifié !");
-                                    console.log(body);
-                                }
-                            }).catch((error) => {
+                                let nom = response.body.nom;
+                                let prenom = response.body.prenom;
+                                let photo = response.body.photoUrl
+                                console.log(`\nla photo de ${nom} ${prenom} a bien été modifé (nouvelle photo : ${photo})`);
 
+                            }).catch((error) => {
+                                console.log(error.message);
+                                menu();
                             });
                     });
                 });
@@ -184,5 +190,4 @@ Saisissez le matricule :`
 
 }
 exports.start = start;
-
 exports.menu = menu;

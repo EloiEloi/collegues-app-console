@@ -3,17 +3,22 @@
 // création d'une requête avec activation de suivi de Cookies.
 const request = require('request-promise-native').defaults({ jar: true });
 
+/**  l'url de l'api Collegue Api
+ * @type {string}
+*/
 const urlApi = 'https://kseguineau-collegues-api.herokuapp.com/';
 
 
-
+/**
+ *  Class de service fournissant les méthodes d'accès aux données de l'apoi Collegue Api
+ */
 class Service {
 
-
-    // s'authentifier sur l'api afin d'avoir les droits en lecture/écriture
+    /**
+     * permet de s'authentifier sur l'api afin d'avoir les droits en lecture/écriture
+     */
     apiAuthentification(loginUser, mdpUser) {
-        const urlReq = urlApi + 'auth';
-        return request(urlReq,
+        return request(`${urlApi}auth`,
             {
                 method: 'POST',
                 json: true,
@@ -29,12 +34,9 @@ class Service {
     };
 
     rechercherMatriculeCollegueParNom(nomCollegue) {
-        const urlReq = urlApi + 'collegues?nom=' + nomCollegue;
-        return request(urlReq, { json: true })
+        return request(`${urlApi}collegues?nom=${nomCollegue}`, { json: true })
             .then((tabMatricules) => {
-
                 let listePromesses = [];
-
                 for (let matricule of tabMatricules) {
                     const r$ = request(`${urlApi}collegues/${matricule}`, { json: true });
                     listePromesses.push(r$)
@@ -45,8 +47,7 @@ class Service {
 
 
     creerCollegue(nom, prenom, email, ddn, photoUrl) {
-        const urlReq = urlApi + 'collegues';
-        return request(urlReq,
+        return request(`${urlApi}collegues`,
             {
                 method: 'POST',
                 json: true,
@@ -63,8 +64,7 @@ class Service {
     };
 
     modifierEmail(nouvEmail, matricule) {
-        const urlReq = urlApi + 'collegues/' + matricule
-        return request(urlReq,
+        return request(`${urlApi}collegues/${matricule}`,
             {
                 method: 'PATCH',
                 json: true,
@@ -77,8 +77,7 @@ class Service {
     };
 
     modifierPhoto(nouvPhoto, matricule) {
-        const urlReq = urlApi + 'collegues/' + matricule
-        return request(urlReq,
+        return request(`${urlApi}collegues/${matricule}`,
             {
                 method: 'PATCH',
                 json: true,
