@@ -19,6 +19,7 @@
   },
   "homepage": "https://github.com/EloiEloi/collegues-app-console#readme",
   "dependencies": {
-    "request": "^2.88.0"
+    "request": "^2.88.0",
+    "request-promise-native": "^1.0.7"
   }
 }

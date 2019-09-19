@@ -1,76 +1,69 @@
-var service = require('./service.js');
+const { Service } = require('./service.js');
+const service = new Service();
 
 // récupération du module "readline"
-var readline = require('readline');
+const readline = require('readline');
 
 // création d'un objet `rl` permettant de récupérer la saisie utilisateur
-var rl = readline.createInterface({
+const rl = readline.createInterface({
     input: process.stdin,
     output: process.stdout
 });
 
+
 function start() {
 
-    function recupLogin(idRl, mdpRl) {
+    function recupLogin() {
 
-        var identifiant = idRl;
-        var mdp = mdpRl;
+        let textConsole = `
+saisissez votre identifiant
+> `;
+        rl.question(textConsole, function (identifiant) {
+            let textConsole = `saisissez votre mdp
+> `;
+            rl.question(textConsole, function (mdp) {
+                service.apiAuthentification(identifiant, mdp)
+                    .then(function (response) {
+                        let statut = response.statusCode;
+                        if (statut === 200) {
+                            console.log(statut, 'authentification réussie !');
+                            menu()
+                        } else if (statut === 404) {
+                            console.log(statut, `mauvaise url`);
+                            start();
+                        } else {
+                            console.log(statut, `echec de l'authentification`);
+                            start();
+                        }
+                    })
+                    .catch(function (err) {
+                        // Request failed due to technical reasons...
+                        console.log(err.statusCode, 'error');
+                        start();
+                    });
 
-        //console.log("identifiant : ", idRl);
-        // console.log("mdp : ", mdpRl);
 
-        if (identifiant === null) {
-            console.log("saisissez votre identifiant");
-            // récupération de la saisie utilisateur
-            rl.question('> ', function (saisie) {
-                recupLogin(saisie);
             });
-        } else if (mdp == null) {
-            console.log("saisissez votre mdp");
-            // récupération de la saisie utilisateur
-            rl.question('> ', function (saisie) {
-                recupLogin(idRl, saisie);
-            });
-        } else {
-            service.initPost(identifiant, mdp,
-                function (err, res) {
 
-                    if (res.statusCode != 200) {
-
-                        console.log(res.statusCode, 'mauvais identifiant/mdp');
-                        recupLogin(null, null);
-                    } else {
-                        console.log(res.statusCode, ' authentification réussie');
-                        menu();
-                    }
-
-
-
-                }
-            );
-
-
-        }
-
+        });
     }
-    recupLogin(null, null);
-
-
-
+    recupLogin();
 }
 
-function resultatConnection(params) {
 
-}
+
 
 
 
 function menu() {
-    console.log("1. Rechercher un collègue");
-    console.log('2. Créer un collègue');
-    console.log("3. Modifier l'email");
-    console.log('4. Modifier la photo');
-    console.log("99. Sortir");
+    let menuString = `
+---- MENU ----
+1. Rechercher un collègue
+2. Créer un collègue;
+3. Modifier l'email
+4. Modifier la photo
+99. Sortir`
+    console.log(menuString);
 
     // récupération de la saisie utilisateur
     rl.question('> ', function (saisie) {
@@ -79,33 +72,25 @@ function menu() {
             case "1":
                 console.log('saisissez un nom')
                 rl.question('> ', function (saisie) {
-
                     console.log('...Recherche en cours du nom  : ', saisie);
                     service.rechercherCollegueParNom(saisie,
                         function (err, res, body) {
                             console.log(res.statusCode);
                             if (res.statusCode === 200) {
                                 console.log(body.length, "collegue(s)  trouvé(s) !");
-
-
                                 for (const key in body) {
-
                                     console.log(body[key]);
-
                                 }
                             }
-
                         }
                     );
-
-
                 });
                 break;
 
-
             case "2":
-                console.log("**Création d'un nouveau collegue :**")
-                console.log('Saisissez un nom :');
+                let aff2 = `**Création d'un nouveau collegue**
+Saisissez un nom :`
+                console.log(aff2);
 
                 rl.question('> ', function (nom) {
                     console.log('Saisissez un prenom :');
@@ -116,7 +101,6 @@ function menu() {
                             rl.question('> ', function (ddn) {
                                 console.log("saisissez l'url d'une photo");
                                 rl.question('> ', function (photoUrl) {
-
                                     service.creerCollegue(nom, prenom, email, ddn, photoUrl,
                                         function (err, res, body) {
                                             console.log(res.statusCode);
@@ -127,29 +111,18 @@ function menu() {
                                         }
                                     );
                                 });
-
                             });
-
                         });
-
                     });
-
                 });
-
-
-
-
-
                 break;
 
-
             case "3":
-                console.log("**Modification email**")
-                console.log("Saisissez le matricule :");
-
+                let aff3 = `**Modification email**
+Saisissez le matricule :`
+                console.log(aff3);
 
                 rl.question('> ', function (matricule) {
-
                     console.log("Saisissez le nouvel email :");
                     rl.question('> ', function (email) {
                         service.modifierEmail(email, matricule,
@@ -158,27 +131,21 @@ function menu() {
                                 if (res.statusCode === 200) {
                                     console.log("email modifié !");
                                     console.log(body);
-
-
                                 }
-
                             }
                         );
                     });
-
-
-
                 });
                 break;
 
 
             case "4":
-                console.log("**Modification de la photo**")
-                console.log("Saisissez le matricule :");
+                let aff4 = `**Modification  de la photo**
+Saisissez le matricule :`
+                console.log(aff4);
 
                 rl.question('> ', function (matricule) {
-
-                    console.log("Saisissez le nouvel email :");
+                    console.log("Saisissez l'url pour la nouvelle photo :");
                     rl.question('> ', function (photo) {
                         service.modifierPhoto(photo, matricule,
                             function (err, res, body) {
@@ -186,14 +153,10 @@ function menu() {
                                 if (res.statusCode === 200) {
                                     console.log("photo modifié !");
                                     console.log(body);
-
                                 }
-
                             }
                         );
                     });
-
-
                 });
                 break;
 
@@ -213,3 +176,4 @@ function menu() {
 }
 exports.start = start;
 
+exports.menu = menu;
